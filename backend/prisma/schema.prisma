@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// -------------------------------
+// Prisma Schema for CollabCode
+// -------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------
+// MODELS
+// -------------------------------
+
+// 👤 User model
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String
+  email          String    @unique
+  password       String
+  // A user can own many projects
+  ownedProjects  Project[] @relation("OwnedProjects")
+  // A user can be a member of many projects
+  memberProjects Project[] @relation("UserProjects")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Project {
+  id        Int          @id @default(autoincrement())
+  name      String
+  ownerId   Int
+  owner     User         @relation("OwnedProjects", fields: [ownerId], references: [id])
+  members   User[]       @relation("UserProjects")
+  codeFiles CodeFile[]   @relation("ProjectCodeFiles")
+  reviews   CodeReview[] @relation("ProjectReviews") // 👈 new line
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model CodeFile {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @unique
+  project   Project  @relation("ProjectCodeFiles", fields: [projectId], references: [id])
+  filename  String
+  content   String   @default("")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model CodeReview {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  project     Project  @relation("ProjectReviews", fields: [projectId], references: [id])
+  summary     String
+  suggestions Json
+  createdAt   DateTime @default(now())
+}
