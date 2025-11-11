@@ -22,6 +22,13 @@ Built with **NestJS**, **Next.js**, **Prisma**, **PostgreSQL**, and **Socket.IO*
 cd backend
 cp .env.example .env
 npm install
+
+### 2. Frontend
+cd frontend
+npm install
+npm run dev
 docker run --name collabcode-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=collabcode -p 5432:5432 -d postgres:16
 npx prisma migrate dev --name init
 npm run start:dev
+
+Then visit: http://localhost:3000
